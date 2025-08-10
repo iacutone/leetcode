@@ -1,0 +1,691 @@
+# Leetcode
+
+## Intro
+
+My attempt to get better a algorithms based on [this](https://seanprashad.com/leetcode-patterns/) blogpost.
+
+According to the post, there are 180 identifiable patterns that FAANG use as determination for web application development skills to filter out applicants that either have better things to do with their time or are young and have the time available to invest learning leetcode algorithm patterns.
+
+With practice, one can identify the patterns and ostensibly pass a FAANG interview.
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 217. Contains Duplicate
+
+Given an integer array nums, return true if any value appears at least twice in the array, and return false if every element is distinct.
+
+Example 1:
+
+Input: nums = [1,2,3,1]
+
+Output: true
+
+Example 2:
+
+Input: nums = [1,2,3,4]
+
+Output: false
+
+Example 3:
+
+Input: nums = [1,1,1,3,3,4,3,2,4,2]
+
+Output: true
+
+```elixir
+Enum.reduce_while([1, 2, 3, 4], MapSet.new(), fn num, acc ->
+  if MapSet.member?(acc, num) do
+    {:halt, true}
+  else
+    {:cont, MapSet.put(acc, num)}
+  end
+end)
+|> case do
+  true -> true
+  _ -> false
+end
+
+# 08/05/2025
+length([1, 2, 3, 1]) != [1, 2, 3, 1] |> Enum.uniq() |> length()
+```
+
+### 268. Missing Number
+
+Given an array nums containing n distinct numbers in the range [0, n], return the only number in the range that is missing from the array.
+
+Example 1:
+
+Input: nums = [3,0,1]
+
+Output: 2
+
+Explanation: n = 3 since there are 3 numbers, so all numbers are in the range [0,3]. 2 is the missing number in the range since it does not appear in nums.
+
+Example 2:
+
+Input: nums = [0,1]
+
+Output: 2
+
+Explanation: n = 2 since there are 2 numbers, so all numbers are in the range [0,2]. 2 is the missing number in the range since it does not appear in nums.
+
+Example 3:
+
+Input: nums = [9,6,4,2,3,5,7,0,1]
+
+Output: 8
+
+Explanation: n = 9 since there are 9 numbers, so all numbers are in the range [0,9]. 8 is the missing number in the range since it does not appear in nums.
+
+Constraints:
+
+n == nums.length
+
+1 <= n <= 104
+
+0 <= nums[i] <= n
+
+All the numbers of nums are unique.
+
+Follow up: Could you implement a solution using only O(1) extra space complexity and O(n) runtime complexity?
+
+```elixir
+# (n * (n + 1)/2)
+
+nums = [0]
+size = length(nums)
+sum = Enum.sum(nums)
+
+size
+|> :erlang.+(1)
+|> :erlang./(2)
+|> :erlang.*(size)
+|> :erlang.-(sum)
+|> round()
+
+# 08/05/2020
+n = length([9, 6, 4, 2, 3, 5, 7, 0, 1])
+set = MapSet.new([9, 6, 4, 2, 3, 5, 7, 0, 1])
+
+Enum.find(0..n, fn num ->
+  !MapSet.member?(set, num)
+end)
+```
+
+### 448. Find All Numbers Disappeared in an Array
+
+Given an array nums of n integers where nums[i] is in the range [1, n], return an array of all the integers in the range [1, n] that do not appear in nums.
+
+Example 1:
+
+Input: nums = [4,3,2,7,8,2,3,1]
+
+Output: [5,6]
+
+Example 2:
+
+Input: nums = [1,1]
+
+Output: [2]
+
+Constraints:
+
+n == nums.length
+
+1 <= n <= 105
+
+1 <= nums[i] <= n
+
+Follow up: Could you do it without extra space and in O(n) runtime? You may assume the returned list does not count as extra space.
+
+```elixir
+nums = [4, 3, 2, 7, 8, 2, 3, 1]
+```
+
+### 121. Best Time to Buy and Sell Stock
+
+You are given an array prices where prices[i] is the price of a given stock on the ith day.
+
+You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock.
+
+Return the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.
+
+Example 1:
+
+Input: prices = [7,1,5,3,6,4]
+Output: 5
+Explanation: Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5.
+Note that buying on day 2 and selling on day 1 is not allowed because you must buy before you sell.
+Example 2:
+
+Input: prices = [7,6,4,3,1]
+Output: 0
+Explanation: In this case, no transactions are done and the max profit = 0.
+
+Constraints:
+
+1 <= prices.length <= 105
+0 <= prices[i] <= 104
+
+```elixir
+# as a map
+prices = [7, 1, 5, 3, 6, 4]
+price_map = %{min_price: List.first(prices), max_profit: 0}
+
+result =
+  Enum.reduce(prices, price_map, fn price,
+                                    %{min_price: min_price, max_profit: max_profit} = acc ->
+    acc = Map.put(acc, :min_price, min(price, min_price))
+    Map.put(acc, :max_profit, max(max_profit, price - Map.get(acc, :min_price)))
+  end)
+
+Map.get(result, :max_profit)
+
+# as a tuple
+if length(prices) < 2 do
+  0
+else
+  initial_state = {hd(prices), 0}
+
+  {_min_price, max_profit} =
+    Enum.reduce(tl(prices), initial_state, fn price, {min_price, max_profit} ->
+      new_min_price = min(min_price, price)
+      current_profit = price - new_min_price
+      new_max_profit = max(max_profit, current_profit)
+      {new_min_price, new_max_profit}
+    end)
+
+  max_profit
+end
+```
+
+### 206. Reverse Linked List
+
+Given the head of a singly linked list, reverse the list, and return the reversed list.
+
+Example 1:
+
+Input: head = [1,2,3,4,5]
+Output: [5,4,3,2,1]
+Example 2:
+
+Input: head = [1,2]
+Output: [2,1]
+Example 3:
+
+Input: head = []
+Output: []
+
+Constraints:
+
+The number of nodes in the list is the range [0, 5000].
+-5000 <= Node.val <= 5000
+
+Follow up: A linked list can be reversed either iteratively or recursively. Could you implement both?
+
+```elixir
+defmodule ListNode do
+  defstruct val: 0, next: nil
+end
+
+defmodule Solution do
+  def reverse_list(nil), do: nil
+
+  def reverse_list(head) do
+    do_reverse_list(nil, head)
+  end
+
+  defp do_reverse_list(previous, nil), do: previous
+
+  defp do_reverse_list(previous, current) do
+    next_node = current.next
+    new_current = %ListNode{val: current.val, next: previous}
+    do_reverse_list(new_current, next_node)
+  end
+end
+```
+
+### 21. Merge Two Sorted Lists
+
+You are given the heads of two sorted linked lists list1 and list2.
+
+Merge the two lists into one sorted list. The list should be made by splicing together the nodes of the first two lists.
+
+Return the head of the merged linked list.
+
+Example 1:
+
+Input: list1 = [1,2,4], list2 = [1,3,4]
+Output: [1,1,2,3,4,4]
+Example 2:
+
+Input: list1 = [], list2 = []
+Output: []
+Example 3:
+
+Input: list1 = [], list2 = [0]
+Output: [0]
+
+Constraints:
+
+The number of nodes in both lists is in the range [0, 50].
+-100 <= Node.val <= 100
+Both list1 and list2 are sorted in non-decreasing order.
+
+```elixir
+defmodule ListNode do
+  defstruct val: 0, next: nil
+end
+
+defmodule Solution do
+  def merge_two_lists(list1, nil), do: list1
+  def merge_two_lists(nil, list2), do: list2
+
+  def merge_two_lists(list1, list2) do
+    if list1.val <= list2.val do
+      %ListNode{list1 | next: merge_two_lists(list1.next, list2)}
+    else
+      %ListNode{list2 | next: merge_two_lists(list1, list2.next)}
+    end
+  end
+end
+```
+
+### 1. Two Sum
+
+Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
+
+You may assume that each input would have exactly one solution, and you may not use the same element twice.
+
+You can return the answer in any order.
+
+Example 1:
+
+Input: nums = [2,7,11,15], target = 9
+Output: [0,1]
+Explanation: Because nums[0] + nums[1] == 9, we return [0, 1].
+Example 2:
+
+Input: nums = [3,2,4], target = 6
+Output: [1,2]
+Example 3:
+
+Input: nums = [3,3], target = 6
+Output: [0,1]
+
+Constraints:
+
+2 <= nums.length <= 104
+-109 <= nums[i] <= 109
+-109 <= target <= 109
+Only one valid answer exists.
+
+Follow-up: Can you come up with an algorithm that is less than O(n2) time complexity?
+
+```elixir
+nums = [2, 7, 11, 15]
+target = 9
+
+Enum.reduce_while(0..(length(nums) - 1), %{}, fn i, acc ->
+  current_num = Enum.at(nums, i)
+  complement = target - current_num
+
+  if Map.has_key?(acc, complement) do
+    {:halt, [Map.get(acc, complement), i]}
+  else
+    {:cont, Map.put(acc, current_num, i)}
+  end
+end)
+```
+
+### 283. Move Zeroes
+
+Given an integer array nums, move all 0's to the end of it while maintaining the relative order of the non-zero elements.
+
+Note that you must do this in-place without making a copy of the array.
+
+Example 1:
+
+Input: nums = [0,1,0,3,12]
+Output: [1,3,12,0,0]
+Example 2:
+
+Input: nums = [0]
+Output: [0]
+
+Constraints:
+
+1 <= nums.length <= 104
+-231 <= nums[i] <= 231 - 1
+
+Follow up: Could you minimize the total number of operations done?
+
+```elixir
+nums = [0, 1, 0, 3, 12]
+
+{non_zeros, zeros} = Enum.split_with(nums, fn x -> x != 0 end) |> IO.inspect()
+non_zeros ++ zeros
+```
+
+### 20. Valid Parentheses
+
+Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.
+
+An input string is valid if:
+
+Open brackets must be closed by the same type of brackets.
+Open brackets must be closed in the correct order.
+Every close bracket has a corresponding open bracket of the same type.
+
+Example 1:
+
+Input: s = "()"
+
+Output: true
+
+Example 2:
+
+Input: s = "()[]{}"
+
+Output: true
+
+Example 3:
+
+Input: s = "(]"
+
+Output: false
+
+Example 4:
+
+Input: s = "([])"
+
+Output: true
+
+Example 5:
+
+Input: s = "([)]"
+
+Output: false
+
+Constraints:
+
+1 <= s.length <= 104
+s consists of parentheses only '()[]{}'.
+
+```elixir
+s = "([])"
+
+close_to_open_map = %{
+  ")" => "(",
+  "]" => "[",
+  "}" => "{"
+}
+
+s
+|> String.graphemes()
+|> Enum.reduce([], fn char, stack ->
+  case Map.get(close_to_open_map, char) do
+    # char is an opening bracket
+    nil ->
+      [char | stack]
+
+    open_bracket when stack != [] and hd(stack) == open_bracket ->
+      # pop from the stack
+      tl(stack)
+
+    _ ->
+      [:invalid | stack]
+  end
+end)
+|> Enum.empty?()
+```
+
+### 238. Product of Array Except Self
+
+Given an integer array nums, return an array answer such that answer[i] is equal to the product of all the elements of nums except nums[i].
+
+The product of any prefix or suffix of nums is guaranteed to fit in a 32-bit integer.
+
+You must write an algorithm that runs in O(n) time and without using the division operation.
+
+Example 1:
+
+Input: nums = [1,2,3,4]
+Output: [24,12,8,6]
+Example 2:
+
+Input: nums = [-1,1,0,-3,3]
+Output: [0,0,9,0,0]
+
+Constraints:
+
+2 <= nums.length <= 105
+-30 <= nums[i] <= 30
+The input is generated such that answer[i] is guaranteed to fit in a 32-bit integer.
+
+Follow up: Can you solve the problem in O(1) extra space complexity? (The output array does not count as extra space for space complexity analysis.)
+
+```elixir
+nums = [1, 2, 3, 4]
+
+indexed_nums =
+  nums
+  |> Enum.with_index()
+  |> Enum.into(%{}, fn {value, index} -> {index, value} end)
+
+Enum.reduce(0..(length(nums) - 1), [], fn i, acc ->
+  num = Map.get(indexed_nums, i)
+end)
+```
+
+### 1047. Remove All Adjacent Duplicates In String
+
+You are given a string s consisting of lowercase English letters. A duplicate removal consists of choosing two adjacent and equal letters and removing them.
+
+We repeatedly make duplicate removals on s until we no longer can.
+
+Return the final string after all such duplicate removals have been made. It can be proven that the answer is unique.
+
+Example 1:
+
+Input: s = "abbaca"
+Output: "ca"
+Explanation: 
+For example, in "abbaca" we could remove "bb" since the letters are adjacent and equal, and this is the only possible move.  The result of this move is that the string is "aaca", of which only "aa" is possible, so the final string is "ca".
+Example 2:
+
+Input: s = "azxxzy"
+Output: "ay"
+
+Constraints:
+
+1 <= s.length <= 105
+s consists of lowercase English letters.
+
+```elixir
+s = "abbaca"
+
+s
+|> String.graphemes()
+|> Enum.reduce([], fn char, stack ->
+  case stack do
+    [head | _] when head == char ->
+      tl(stack)
+
+    _ ->
+      [char | stack]
+  end
+end)
+|> Enum.reverse()
+|> List.to_string()
+```
+
+### 14. Longest Common Prefix
+
+Write a function to find the longest common prefix string amongst an array of strings.
+
+If there is no common prefix, return an empty string "".
+
+Example 1:
+
+Input: strs = ["flower","flow","flight"]
+Output: "fl"
+Example 2:
+
+Input: strs = ["dog","racecar","car"]
+Output: ""
+Explanation: There is no common prefix among the input strings.
+
+Constraints:
+
+1 <= strs.length <= 200
+0 <= strs[i].length <= 200
+strs[i] consists of only lowercase English letters if it is non-empty.
+
+```elixir
+strs = ["flower", "flow", "flight"]
+
+defmodule LongestCommonPrefix do
+  # recursive approach
+  # def longest_common_prefix([]), do: ""
+  # def longest_common_prefix([prefix | rest]) do
+  #   Enum.reduce(rest, prefix, fn str, acc ->
+  #     trim_prefix(str, acc)
+  #   end)
+  # end
+
+  # defp trim_prefix(str, acc) do
+  #   if String.starts_with?(str, acc) do
+  #     acc
+  #   else
+  #     # Recursively trim the prefix by removing the last character
+  #     trim_prefix(str, String.slice(acc, 0, String.length(acc) - 1))
+  #   end
+  # end
+
+  # binary pattern matching recursive approach
+  def longest_common_prefix([head | tail]) do
+    Enum.reduce(tail, head, fn word, acc ->
+      common_prefix(word, acc, "")
+    end)
+  end
+
+  defp common_prefix(<<c, word_rest::binary>>, <<c, tail_rest::binary>>, common) do
+    common_prefix(word_rest, tail_rest, common <> <<c>>)
+  end
+
+  defp common_prefix(_, _, common), do: common
+end
+
+LongestCommonPrefix.longest_common_prefix(strs)
+```
+
+### 706. Design HashMap
+
+Design a HashMap without using any built-in hash table libraries.
+
+Implement the MyHashMap class:
+
+MyHashMap() initializes the object with an empty map.
+void put(int key, int value) inserts a (key, value) pair into the HashMap. If the key already exists in the map, update the corresponding value.
+int get(int key) returns the value to which the specified key is mapped, or -1 if this map contains no mapping for the key.
+void remove(key) removes the key and its corresponding value if the map contains the mapping for the key.
+
+Example 1:
+
+Input
+["MyHashMap", "put", "put", "get", "get", "put", "get", "remove", "get"]
+[[], [1, 1], [2, 2], [1], [3], [2, 1], [2], [2], [2]]
+Output
+[null, null, null, 1, -1, null, 1, null, -1]
+
+Explanation
+MyHashMap myHashMap = new MyHashMap();
+myHashMap.put(1, 1); // The map is now [[1,1]]
+myHashMap.put(2, 2); // The map is now [[1,1], [2,2]]
+myHashMap.get(1);    // return 1, The map is now [[1,1], [2,2]]
+myHashMap.get(3);    // return -1 (i.e., not found), The map is now [[1,1], [2,2]]
+myHashMap.put(2, 1); // The map is now [[1,1], [2,1]] (i.e., update the existing value)
+myHashMap.get(2);    // return 1, The map is now [[1,1], [2,1]]
+myHashMap.remove(2); // remove the mapping for 2, The map is now [[1,1]]
+myHashMap.get(2);    // return -1 (i.e., not found), The map is now [[1,1]]
+
+```elixir
+defmodule MyHashMap do
+  @bucket_size 1000
+
+  def init_ do
+    [] |> List.duplicate(@bucket_size) |> List.to_tuple()
+  end
+
+  def put(hash_map, key, value) do
+    hash_key = hash(key)
+    bucket = elem(hash_map, hash_key)
+    new_bucket = do_put(bucket, key, value)
+
+    put_elem(hash_map, hash_key, new_bucket)
+  end
+
+  # nothing is in the bucket, insert the key/value tuple
+  defp do_put([], key, value) do
+    [{key, value}]
+  end
+
+  # a matching entry was found, replace the value
+  defp do_put([{key, _} | rest], key, value) do
+    [{key, value} | rest]
+  end
+
+  # continue searching for a matching entry
+  defp do_put([head | rest], key, value) do
+    [head | do_put(rest, key, value)]
+  end
+
+  def get(hash_map, key) do
+    hash_key = hash(key)
+    bucket = elem(hash_map, hash_key)
+
+    do_get(bucket, key)
+  end
+
+  # the list is empty, return -1 by default
+  defp do_get([], _key) do
+    -1
+  end
+
+  defp do_get([{key, value} | _rest], key) do
+    value
+  end
+
+  defp do_get([_head | rest], key) do
+    do_get(rest, key)
+  end
+
+  def remove(hash_map, key) do
+    hash_key = hash(key)
+    bucket = elem(hash_map, hash_key)
+    new_bucket = Enum.filter(bucket, fn {k, _v} -> k != key end)
+
+    put_elem(hash_map, hash_key, new_bucket)
+  end
+
+  defp hash(key) do
+    rem(key, @bucket_size)
+  end
+end
+
+# Example Usage
+my_hash_map = MyHashMap.init_()
+
+my_hash_map = MyHashMap.put(my_hash_map, 1, 10)
+my_hash_map = MyHashMap.put(my_hash_map, 1022, 20)
+my_hash_map = MyHashMap.put(my_hash_map, 2, 200)
+
+IO.puts("Value for key 1: #{MyHashMap.get(my_hash_map, 1)}")
+IO.puts("Value for key 1022: #{MyHashMap.get(my_hash_map, 1022)}")
+IO.puts("Value for key 2: #{MyHashMap.get(my_hash_map, 2)}")
+IO.puts("Value for key 99: #{MyHashMap.get(my_hash_map, 99)}")
+
+my_hash_map = MyHashMap.remove(my_hash_map, 1)
+IO.puts("Value for key 1 after removal: #{MyHashMap.get(my_hash_map, 1)}")
+```
