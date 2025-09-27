@@ -466,7 +466,12 @@ The input is generated such that answer[i] is guaranteed to fit in a 32-bit inte
 Follow up: Can you solve the problem in O(1) extra space complexity? (The output array does not count as extra space for space complexity analysis.)
 
 ```elixir
+# This solution times out on Leetcode
+# Would need to implement with hard to grok
+# prefix/postfix solution to pass Leetcode
+
 nums = [1, 2, 3, 4]
+# nums = [0, 0]
 
 indexed_nums =
   nums
@@ -474,8 +479,12 @@ indexed_nums =
   |> Enum.into(%{}, fn {value, index} -> {index, value} end)
 
 Enum.reduce(0..(length(nums) - 1), [], fn i, acc ->
-  num = Map.get(indexed_nums, i)
+  output =
+    indexed_nums |> Map.delete(i) |> Map.values() |> Enum.reduce(1, fn n, acc -> n * acc end)
+
+  [output | acc]
 end)
+|> Enum.reverse()
 ```
 
 ### 1047. Remove All Adjacent Duplicates In String
@@ -688,4 +697,666 @@ IO.puts("Value for key 99: #{MyHashMap.get(my_hash_map, 99)}")
 
 my_hash_map = MyHashMap.remove(my_hash_map, 1)
 IO.puts("Value for key 1 after removal: #{MyHashMap.get(my_hash_map, 1)}")
+```
+
+### 242. Valid Anagram
+
+Given two strings s and t, return true if t is an of s, and false otherwise.
+
+Example 1:
+
+Input: s = "anagram", t = "nagaram"
+Output: true
+
+Example 2:
+Input: s = "rat", t = "car"
+Output: false
+
+Constraints:
+
+```
+1 <= s.length, t.length <= 5 * 104
+s and t consist of lowercase English letters.
+```
+
+Follow up: What if the inputs contain Unicode characters? How would you adapt your solution to such a case?
+
+```elixir
+s = "anagram"
+t = "nagaram"
+
+# s = "ab"
+# t = "a"
+
+s |> String.graphemes() |> Enum.frequencies() == t |> String.graphemes() |> Enum.frequencies()
+```
+
+### 125. Valid Palindrome
+
+A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward. Alphanumeric characters include letters and numbers.
+
+Given a string s, return true if it is a palindrome, or false otherwise.
+
+Example 1:
+
+Input: s = "A man, a plan, a canal: Panama"
+Output: true
+Explanation: "amanaplanacanalpanama" is a palindrome.
+
+Example 2:
+
+Input: s = "race a car"
+Output: false
+Explanation: "raceacar" is not a palindrome.
+
+Example 3:
+
+Input: s = " "
+Output: true
+Explanation: s is an empty string "" after removing non-alphanumeric characters.
+Since an empty string reads the same forward and backward, it is a palindrome.
+
+Constraints:
+
+```
+1 <= s.length <= 2 * 105
+s consists only of printable ASCII characters.
+```
+
+```elixir
+s = "A man, a plan, a canal: Panama"
+s = "ab_a"
+filtered = s |> String.downcase() |> String.replace(~r/[^a-zA-Z0-9]/, "") |> String.graphemes()
+Enum.reverse(filtered) == filtered
+```
+
+### 704. Binary Search
+
+Given an array of integers nums which is sorted in ascending order, and an integer target, write a function to search target in nums. If target exists, then return its index. Otherwise, return -1.
+
+You must write an algorithm with O(log n) runtime complexity.
+
+Example 1:
+
+Input: nums = [-1,0,3,5,9,12], target = 9
+Output: 4
+Explanation: 9 exists in nums and its index is 4
+
+Example 2:
+
+Input: nums = [-1,0,3,5,9,12], target = 2
+Output: -1
+Explanation: 2 does not exist in nums so return -1
+
+Constraints:
+
+```
+1 <= nums.length <= 104
+-104 < nums[i], target < 104
+All the integers in nums are unique.
+nums is sorted in ascending order.
+```
+
+```elixir
+defmodule BinarySearch do
+  @spec search(nums :: [integer], target :: integer) :: integer
+  def search(nums, target) when is_list(nums) do
+    do_search(nums, target, 0, length(nums) - 1)
+  end
+
+  defp do_search(_list, _target, low, high) when low > high, do: -1
+
+  defp do_search(list, target, low, high) do
+    mid = low + div(high - low, 2)
+    case Enum.at(list, mid) do
+      nil -> -1  # This case handles an empty list gracefully
+      element when element == target -> mid
+      element when element < target -> do_search(list, target, mid + 1, high)
+      _element -> do_search(list, target, low, mid - 1)
+    end
+  end
+end
+
+nums = [-1,0,3,5,9,12]
+target = 9
+
+BinarySearch.search(nums, target)
+```
+
+```elixir
+defmodule BFS do
+  @doc """
+  Performs a Breadth-First Search on a graph, starting from a given node.
+  Returns a list of nodes in the order they were visited.
+  """
+  def traverse(graph, start_node) do
+    # The queue will be a list of nodes to visit.
+    # The visited set will be a MapSet to ensure O(1) lookups.
+    queue = [start_node]
+    visited = MapSet.new([start_node])
+    do_traverse(graph, queue, visited, [])
+  end
+
+  defp do_traverse(_graph, [], _visited, result), do: Enum.reverse(result)
+
+  defp do_traverse(graph, [current_node | rest_of_queue], visited, result) do
+    # Add the current node to the result list
+    result = [current_node | result]
+
+    # Get the neighbors of the current node
+    neighbors = Map.get(graph, current_node, [])
+
+    # Filter out neighbors that have already been visited
+    new_neighbors = neighbors
+    |> Enum.filter(fn neighbor -> not MapSet.member?(visited, neighbor) end)
+
+    # Add new neighbors to the end of the queue
+    new_queue = rest_of_queue ++ new_neighbors
+
+    # Add new neighbors to the visited set
+    new_visited = Enum.reduce(new_neighbors, visited, fn neighbor, acc ->
+      MapSet.put(acc, neighbor)
+    end)
+
+    # Recurse with the updated queue, visited set, and result
+    do_traverse(graph, new_queue, new_visited, result)
+  end
+end
+```
+
+```elixir
+defmodule DFS do
+  @doc """
+  Performs a Depth-First Search on a graph, starting from a given node.
+  Returns a list of nodes in the order they were visited.
+  """
+  def traverse(graph, start_node) do
+    # The stack will be a list of nodes to visit.
+    # The visited set will be a MapSet to ensure O(1) lookups.
+    stack = [start_node]
+    visited = MapSet.new([start_node])
+    do_traverse(graph, stack, visited, [])
+  end
+
+  defp do_traverse(_graph, [], _visited, result), do: Enum.reverse(result)
+
+  defp do_traverse(graph, [current_node | rest_of_stack], visited, result) do
+    # Add the current node to the result list
+    result = [current_node | result]
+
+    # Get the neighbors of the current node
+    neighbors = Map.get(graph, current_node, [])
+
+    # Filter out neighbors that have already been visited
+    new_neighbors = neighbors
+    |> Enum.filter(fn neighbor -> not MapSet.member?(visited, neighbor) end)
+
+    # Push new neighbors onto the stack (prepending to the list)
+    new_stack = new_neighbors ++ rest_of_stack
+
+    # Add new neighbors to the visited set
+    new_visited = Enum.reduce(new_neighbors, visited, fn neighbor, acc ->
+      MapSet.put(acc, neighbor)
+    end)
+
+    # Recurse with the updated stack, visited set, and result
+    do_traverse(graph, new_stack, new_visited, result)
+  end
+end
+```
+
+### 70. Climbing Stairs
+
+You are climbing a staircase. It takes n steps to reach the top.
+
+Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?
+
+Example 1:
+
+Input: n = 2
+Output: 2
+Explanation: There are two ways to climb to the top.
+
+1. 1 step + 1 step
+2. 2 steps
+
+Example 2:
+
+Input: n = 3
+Output: 3
+Explanation: There are three ways to climb to the top.
+
+1. 1 step + 1 step + 1 step
+2. 1 step + 2 steps
+3. 2 steps + 1 step
+
+Constraints:
+
+```
+1 <= n <= 45
+```
+
+```elixir
+n = 3
+
+# can take either 1 or 2 steps
+
+defmodule Fibonacci do
+  def climb_stairs(n) do
+    do_fib(n, 1, 1)
+  end
+
+  defp do_fib(0, result, _next), do: result
+
+  defp do_fib(n, result, next) do
+    do_fib(n - 1, next, result + next)
+  end
+end
+
+Fibonacci.climb_stairs(n)
+
+Enum.reduce(0..n - 1, {1, 1}, fn _i, {one, two} ->
+  temp = one
+  one = one + two
+  two = temp
+  {one, two}
+end)
+|> elem(1)
+```
+
+### 146. LRU Cache
+
+Design a data structure that follows the constraints of a Least Recently Used (LRU) cache.
+
+Implement the LRUCache class:
+
+```
+LRUCache(int capacity) Initialize the LRU cache with positive size capacity.
+int get(int key) Return the value of the key if the key exists, otherwise return -1.
+void put(int key, int value) Update the value of the key if the key exists. Otherwise, add the key-value pair to the cache. If the number of keys exceeds the capacity from this operation, evict the least recently used key.
+```
+
+The functions get and put must each run in O(1) average time complexity.
+
+Example 1:
+
+Input
+["LRUCache", "put", "put", "get", "put", "get", "put", "get", "get", "get"]
+[[2], [1, 1], [2, 2], [1], [3, 3], [2], [4, 4], [1], [3], [4]]
+Output
+[null, null, null, 1, null, -1, null, -1, 3, 4]
+
+Explanation
+LRUCache lRUCache = new LRUCache(2);
+lRUCache.put(1, 1); // cache is {1=1}
+lRUCache.put(2, 2); // cache is {1=1, 2=2}
+lRUCache.get(1);    // return 1
+lRUCache.put(3, 3); // LRU key was 2, evicts key 2, cache is {1=1, 3=3}
+lRUCache.get(2);    // returns -1 (not found)
+lRUCache.put(4, 4); // LRU key was 1, evicts key 1, cache is {4=4, 3=3}
+lRUCache.get(1);    // return -1 (not found)
+lRUCache.get(3);    // return 3
+lRUCache.get(4);    // return 4
+
+```elixir
+# map/queue implementation
+defmodule LRUCache do
+  def init_(capacity) do
+    %{capacity: capacity, cache: %{}, lru_order: :queue.new()}
+  end
+
+  def get(state, key) do
+    case Map.get(state.cache, key) do
+      nil ->
+        IO.puts("-1")
+        state
+
+      value ->
+        IO.inspect(value)
+        %{state | lru_order: update_queue_order(state.lru_order, key)}
+    end
+  end
+
+  def put(state, key, value) do
+    case Map.get(state.cache, key) do
+      nil ->
+        if :queue.len(state.lru_order) >= state.capacity do
+          {{:value, item}, new_queue} = :queue.out(state.lru_order)
+          cache = Map.delete(state.cache, item)
+          cache = Map.put(cache, key, value)
+          new_lru_order = :queue.in(key, new_queue)
+          
+          %{state | cache: cache, lru_order: new_lru_order}
+        else
+          cache = Map.put(state.cache, key, value)
+          new_lru_order = :queue.in(key, state.lru_order)
+          %{state | cache: cache, lru_order: new_lru_order}
+        end
+          
+      value ->
+        %{state | lru_order: update_queue_order(state.lru_order, key), cache: Map.put(state.cache, key, value)}
+    end
+  end
+
+  defp update_queue_order(lru_order, key) do
+    new_queue = :queue.delete(key, lru_order)
+    :queue.in(key, new_queue)
+  end
+end
+
+state = LRUCache.init_(2)
+state = LRUCache.put(state, 1, 1); # cache is {1=1}
+state = LRUCache.put(state, 2, 2); # cache is {1=1, 2=2}
+state = LRUCache.get(state, 1);    # return 1
+state = LRUCache.put(state, 3, 3); # LRU key was 2, evicts key 2, cache is {1=1, 3=3}
+state = LRUCache.get(state, 2);    # returns -1 (not found)
+state = LRUCache.put(state, 4, 4); # LRU key was 1, evicts key 1, cache is {4=4, 3=3}
+state = LRUCache.get(state, 1);    # return -1 (not found)
+state = LRUCache.get(state, 3);    # return 3
+state = LRUCache.get(state, 4);    # return 4
+```
+
+```elixir
+# GenServer map implementation
+defmodule LRUCache1 do
+  def init_(capacity) do
+    LRUCacheMap1.start_link(capacity: capacity)
+  end
+
+  def get(key) do
+    LRUCacheMap1.get(key)
+  end
+
+  def put(key, value) do
+    LRUCacheMap1.put(key, value)
+  end
+end
+
+defmodule LRUCacheMap1 do
+  use GenServer
+
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  end
+
+  @impl true
+  def init(opts) do
+    capacity = Keyword.get(opts, :capacity, opts)
+    
+    {:ok, %{cache: %{}, lru_order: :queue.new(), capacity: capacity}}
+  end
+
+  def get(key) do
+    GenServer.call(__MODULE__, {:get, key})
+  end
+
+  def put(key, value) do
+    GenServer.cast(__MODULE__, {:put, key, value})
+  end
+
+  @impl true
+  def handle_call({:get, key}, _from, state) do
+    case Map.get(state.cache, key) do
+      nil ->
+        {:reply, -1, state}
+        
+      value ->
+        new_state = %{state | lru_order: update_queue_order(state.lru_order, key)}
+        
+        {:reply, value, new_state}
+    end
+  end
+
+  @impl true
+  def handle_cast({:put, key, value}, state) do
+    case Map.get(state.cache, key) do
+      nil ->
+        if :queue.len(state.lru_order) >= state.capacity do
+          {{:value, item}, new_queue} = :queue.out(state.lru_order)
+          cache = Map.delete(state.cache, item)
+          cache = Map.put(cache, key, value)
+          new_lru_order = :queue.in(key, new_queue)
+          
+          {:noreply, %{state | cache: cache, lru_order: new_lru_order}}
+        else
+          cache = Map.put(state.cache, key, value)
+          new_lru_order = :queue.in(key, state.lru_order)
+          {:noreply, %{state | cache: cache, lru_order: new_lru_order}}
+        end
+          
+      value ->
+        {:noreply, %{state | cache: Map.put(state.cache, key, value), lru_order: update_queue_order(state.lru_order, key)}}
+    end
+  end
+
+  defp update_queue_order(lru_order, key) do
+    new_queue = :queue.delete(key, lru_order)
+    :queue.in(key, new_queue)
+  end
+end
+
+# {:error, {:already_started, pid}} = LRUCache1.init_(2)
+# Process.exit(pid, :kill)
+# LRUCache1.put(1, 1); # cache is {1=1}
+# LRUCache1.put(2, 2); # cache is {1=1, 2=2}
+# LRUCache1.get(1);    # return 1
+# LRUCache1.put(3, 3); # LRU key was 2, evicts key 2, cache is {1=1, 3=3}
+# LRUCache1.get(2);    # returns -1 (not found)
+# LRUCache1.put(4, 4); # LRU key was 1, evicts key 1, cache is {4=4, 3=3}
+# LRUCache1.get(1);    # return -1 (not found)
+# LRUCache1.get(3);    # return 3
+# LRUCache1.get(4);    # return 4
+```
+
+```elixir
+# GenServer ets implementation
+defmodule LRUCache2 do
+  def init_(capacity) do
+    LRUCacheMap2.start_link(capacity: capacity)
+  end
+
+  def get(key) do
+    LRUCacheMap2.get(key)
+  end
+
+  def put(key, value) do
+    LRUCacheMap2.put(key, value)
+  end
+end
+
+defmodule LRUCacheMap2 do
+  use GenServer
+
+  @table :cache
+
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  end
+
+  @impl true
+  def init(opts) do
+    capacity = Keyword.get(opts, :capacity, opts)
+    
+    {:ok, %{cache: :ets.new(@table, [:set, :named_table, :public]), lru_order: :queue.new(), capacity: capacity}}
+  end
+
+  def get(key) do
+    case :ets.lookup(@table, key) do
+      [{^key, value}] -> value
+      [] -> -1
+    end
+  end
+
+  def put(key, value) do
+    GenServer.cast(__MODULE__, {:put, key, value})
+  end
+
+  @impl true
+  def handle_cast({:put, key, value}, state) do
+    case get(key) do
+      -1 ->
+        if :queue.len(state.lru_order) >= state.capacity do
+          {{:value, item}, new_queue} = :queue.out(state.lru_order)
+          :ets.delete(@table, item)
+          :ets.insert(@table, {key, value})
+          new_lru_order = :queue.in(key, new_queue)
+          
+          {:noreply, %{state | lru_order: new_lru_order}}
+        else
+          :ets.insert(@table, {key, value})
+          new_lru_order = :queue.in(key, state.lru_order)
+          {:noreply, %{state | lru_order: new_lru_order}}
+        end
+          
+      value ->
+        :ets.insert(@table, {key, value})
+        {:noreply, %{state | lru_order: update_queue_order(state.lru_order, key)}}
+    end
+  end
+
+  defp update_queue_order(lru_order, key) do
+    new_queue = :queue.delete(key, lru_order)
+    :queue.in(key, new_queue)
+  end
+end
+
+# {:error, {:already_started, pid}} = LRUCache2.init_(2)
+# Process.exit(pid, :kill)
+# LRUCache2.init_(2)
+# LRUCache2.put(1, 1); # cache is {1=1}
+# LRUCache2.put(2, 2); # cache is {1=1, 2=2}
+# LRUCache2.get(1);    # return 1
+# LRUCache2.put(3, 3); # LRU key was 2, evicts key 2, cache is {1=1, 3=3}
+# LRUCache2.get(2);    # returns -1 (not found)
+# LRUCache2.put(4, 4); # LRU key was 1, evicts key 1, cache is {4=4, 3=3}
+# LRUCache2.get(1);    # return -1 (not found)
+# LRUCache2.get(3);    # return 3
+# LRUCache2.get(4);    # return 4
+```
+
+### 1046. Last Stone Weight
+
+You are given an array of integers stones where stones[i] is the weight of the ith stone.
+
+We are playing a game with the stones. On each turn, we choose the heaviest two stones and smash them together. Suppose the heaviest two stones have weights x and y with x <= y. The result of this smash is:
+
+```
+If x == y, both stones are destroyed, and
+If x != y, the stone of weight x is destroyed, and the stone of weight y has new weight y - x.
+```
+
+At the end of the game, there is at most one stone left.
+
+Return the weight of the last remaining stone. If there are no stones left, return 0.
+
+Example 1:
+
+Input: stones = [2,7,4,1,8,1]
+Output: 1
+Explanation: 
+We combine 7 and 8 to get 1 so the array converts to [2,4,1,1,1] then,
+we combine 2 and 4 to get 2 so the array converts to [2,1,1,1] then,
+we combine 2 and 1 to get 1 so the array converts to [1,1,1] then,
+we combine 1 and 1 to get 0 so the array converts to [1] then that's the value of the last stone.
+
+Example 2:
+
+Input: stones = [1]
+Output: 1
+
+Constraints:
+
+```
+1 <= stones.length <= 30
+1 <= stones[i] <= 1000
+```
+
+```elixir
+stones = [2,7,4,1,8,1]
+
+defmodule LSW do
+  def last_stone_weight([]), do: 0
+  def last_stone_weight([stone]), do: stone
+  def last_stone_weight(stones) do
+    stones |> smash() |> last_stone_weight()
+  end
+
+  defp smash(stones) do
+    [first, second | rest] = Enum.sort(stones, :desc)
+    [first - second | rest]
+  end
+end
+
+LSW.last_stone_weight(stones)
+```
+
+### 226. Invert Binary Tree
+
+```elixir
+defmodule TreeNode do
+  defstruct val: 0, left: nil, right: nil
+end
+
+defmodule IBT do
+  def invert_tree(nil), do: nil
+  def invert_tree(root = %{left: left, right: right}) do
+    %{root | left: invert_tree(right), right: invert_tree(left)}
+  end
+end
+```
+
+### 104. Maximum Depth of a Binary Tree
+
+```elixir
+defmodule TreeNode do
+  defstruct val: 0, left: nil, right: nil
+end
+
+defmodule MD do
+  def max_depth(nil): do, 0
+  def max_depth(root) do
+    1 + max(max_depth(root.left), max_depth(root.right))
+  end
+end
+```
+
+### 543. Diameter of a Binary Tree
+
+```elixir
+defmodule DBT do
+  def diameter_of_binary_tree(root) do
+    do_diameter(root.left, root.right, 0)
+  end
+
+  defp do_diameter(nil, value), do: value
+  defp do_diameter(value, nil), do: value
+
+  defp do_diameter(left, right, value) do
+    
+  end
+end
+```
+
+### 110. Balanced Binary Tree
+
+```elixir
+defmodule BBT do
+  def is_balanced(root) do
+    {balanced?, _} = do_balanced(root)
+    balanced?
+  end
+
+  defp do_balanced(nil), do: {true, 0}
+  
+  defp do_balanced(root) do
+    {left_balanced?, left_height} = do_balanced(root.left)
+    {right_balanced?, right_height} = do_balanced(root.right)
+    
+    if left_balanced? and right_balanced? and abs(left_height - right_height) <= 1 do
+      {true, 1 + max(left_height, right_height)}
+    else
+      {false, 0}
+    end
+  end
+end
 ```
