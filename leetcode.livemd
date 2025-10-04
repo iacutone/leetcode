@@ -231,8 +231,8 @@ end
 defmodule Solution do
   def reverse_list(nil), do: nil
 
-  def reverse_list(head) do
-    do_reverse_list(nil, head)
+  def reverse_list(list) do
+    do_reverse_list(nil, list)
   end
 
   defp do_reverse_list(previous, nil), do: previous
@@ -1325,14 +1325,19 @@ end
 ```elixir
 defmodule DBT do
   def diameter_of_binary_tree(root) do
-    do_diameter(root.left, root.right, 0)
+    {_height, max} = do_diameter(root)
+    max
   end
 
-  defp do_diameter(nil, value), do: value
-  defp do_diameter(value, nil), do: value
+  defp do_diameter(nil), do: {0, 0}
+  
+  defp do_diameter(root) do
+    {hl, ml} = do_diameter(root.left)
+    {hr, mr} = do_diameter(root.right)
 
-  defp do_diameter(left, right, value) do
-    
+    height = 1 + max(hl, hr)
+    max = max(hl + hr, max(ml, mr))
+    {height, max}
   end
 end
 ```
