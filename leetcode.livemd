@@ -1365,3 +1365,25 @@ defmodule BBT do
   end
 end
 ```
+
+## 337. House Robber III
+
+```elixir
+defmodule HR3 do
+  def rob(root) do
+    Enum.max(do_rob(root))
+  end
+
+  defp do_rob(nil), do: [0, 0]
+
+  defp do_rob(root) do
+    [_left1, left2] = left_pair = do_rob(root.left)
+    [_right1, right2] = right_pair = do_rob(root.right)
+
+    with_root = root.val + left2 + right2
+    without_root = Enum.max(left_pair) + Enum.max(right_pair)
+
+    [with_root, without_root]
+  end
+end
+```
