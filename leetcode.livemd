@@ -1500,3 +1500,35 @@ grid = [
 
 NI.num_islands(grid)
 ```
+
+## 13. Roman to Integer
+
+```elixir
+s = "MCMXCIV"
+
+roman_to_int = %{
+  "I" => 1,
+  "V" => 5,
+  "X" => 10,
+  "L" => 50,
+  "C" => 100,
+  "D" => 500,
+  "M" => 1_000
+}
+
+# large to small => add
+# small to large => subtract
+
+s
+|> String.graphemes()
+|> Enum.with_index()
+|> Enum.reduce(0, fn {char, i}, result ->
+  next_char = String.at(s, i + 1)
+  
+  if is_binary(next_char) and Map.get(roman_to_int, char) < Map.get(roman_to_int, next_char) do
+    result - Map.get(roman_to_int, char)
+  else
+    result + Map.get(roman_to_int, char)
+  end
+end)
+```
