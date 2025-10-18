@@ -1387,3 +1387,54 @@ defmodule HR3 do
   end
 end
 ```
+
+## 733. Flood Fill
+
+```elixir
+defmodule FF do
+  def flood_fill(image, sr, sc, color) do
+    start_color = get_pixel(image, sr, sc)
+    
+    if start_color == color do
+      image
+    else
+      dfs(image, sr, sc, start_color, color)
+    end
+  end
+  
+  defp dfs(image, r, c, start_color, new_color) do
+    rows = length(image)
+    cols = length(hd(image))
+    
+    if r < 0 or r >= rows or c < 0 or c >= cols or 
+       get_pixel(image, r, c) != start_color do
+      image
+    else
+      image = set_pixel(image, r, c, new_color)
+      
+      image
+      |> dfs(r + 1, c, start_color, new_color)
+      |> dfs(r - 1, c, start_color, new_color)
+      |> dfs(r, c + 1, start_color, new_color)
+      |> dfs(r, c - 1, start_color, new_color)
+    end
+  end
+
+  defp get_pixel(image, r, c) do
+    image |> Enum.at(r) |> Enum.at(c)
+  end
+  
+  defp set_pixel(image, r, c, color) do
+    List.update_at(image, r, fn row ->
+      List.replace_at(row, c, color)
+    end)
+  end
+end
+
+image = [[1,1,1],[1,1,0],[1,0,1]]
+sr = 1
+sc = 1
+color = 2
+
+FF.flood_fill(image, sr, sc, color)
+```
