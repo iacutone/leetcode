@@ -363,7 +363,7 @@ Follow up: Could you minimize the total number of operations done?
 ```elixir
 nums = [0, 1, 0, 3, 12]
 
-{non_zeros, zeros} = Enum.split_with(nums, fn x -> x != 0 end) |> IO.inspect()
+{non_zeros, zeros} = Enum.split_with(nums, fn x -> x != 0 end)
 non_zeros ++ zeros
 ```
 
@@ -1437,4 +1437,66 @@ sc = 1
 color = 2
 
 FF.flood_fill(image, sr, sc, color)
+```
+
+## 200. Number of Islands
+
+```elixir
+defmodule NI do
+  def num_islands(grid) when grid == [] or hd(grid) == [], do: 0
+  
+  def num_islands(grid) do
+    rows = length(grid)
+    cols = length(hd(grid))
+    
+    {count, _visited} = 
+      Enum.reduce(0..(rows - 1), {0, MapSet.new()}, fn r, {count, visited} ->
+        Enum.reduce(0..(cols - 1), {count, visited}, fn c, {count, visited} ->
+            if get_island(grid, r, c) == "1" and not MapSet.member?(visited, {r, c}) do
+              new_visited = dfs(grid, r, c, visited, rows, cols)
+              {count + 1, new_visited}
+            else
+              {count, visited}
+            end
+        end)
+      end)
+    
+    count
+  end
+  
+  defp dfs(grid, r, c, visited, rows, cols) do
+    cond do
+      r < 0 or r >= rows or c < 0 or c >= cols ->
+        visited
+      
+      MapSet.member?(visited, {r, c}) ->
+        visited
+      
+      get_island(grid, r, c) != "1" ->
+        visited
+      
+      true ->
+        visited = MapSet.put(visited, {r, c})
+        
+        visited
+        |> then(&dfs(grid, r + 1, c, &1, rows, cols))
+        |> then(&dfs(grid, r - 1, c, &1, rows, cols))
+        |> then(&dfs(grid, r, c + 1, &1, rows, cols))
+        |> then(&dfs(grid, r, c - 1, &1, rows, cols))
+    end
+  end
+
+  defp get_island(grid, r, c) do
+    grid |> Enum.at(r) |> Enum.at(c)
+  end
+end
+
+grid = [
+  ["1","1","1","1","0"],
+  ["1","1","0","1","0"],
+  ["1","1","0","0","0"],
+  ["0","0","0","0","0"]
+]
+
+NI.num_islands(grid)
 ```
