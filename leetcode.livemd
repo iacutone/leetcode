@@ -1532,3 +1532,14 @@ s
   end
 end)
 ```
+
+## 169. Majority Element
+
+```elixir
+nums = [2,2,1,1,1,2,2]
+
+nums 
+|> Enum.frequencies()
+|> Enum.max_by(fn {_k, v} -> v end)
+|> then(fn {k, _v} -> k end)
+```
