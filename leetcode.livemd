@@ -1543,3 +1543,14 @@ nums
 |> Enum.max_by(fn {_k, v} -> v end)
 |> then(fn {k, _v} -> k end)
 ```
+
+## 136. Single Number
+
+```elixir
+nums = [4,1,2,1,2]
+
+nums
+|> Enum.frequencies()
+|> Enum.min_by(fn {_k, v} -> v end)
+|> then(fn {k, _v} -> k end)
+```
