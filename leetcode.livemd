@@ -1554,3 +1554,30 @@ nums
 |> Enum.min_by(fn {_k, v} -> v end)
 |> then(fn {k, _v} -> k end)
 ```
+
+## 118. Pascal's Triangle
+
+```elixir
+defmodule PT do
+  def generate(1), do: [[1]]
+  
+  def generate(num) do
+    Enum.reverse(do_generate(num, [[1,1], [1]]))
+  end
+
+  defp do_generate(1, _acc), do: [[1]]
+
+  defp do_generate(2, acc), do: acc
+
+  defp do_generate(num, [head | _] = acc) do
+    row = [0 | head]
+    next_row = Enum.reduce(0..length(row) - 1, [], fn i, acc ->
+      [Enum.at(row, i) + Enum.at(row, i + 1, 0) | acc]
+    end)
+
+    do_generate(num - 1, [next_row | acc])
+  end
+end
+
+PT.generate(5)
+```
