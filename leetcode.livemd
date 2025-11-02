@@ -1565,8 +1565,6 @@ defmodule PT do
     Enum.reverse(do_generate(num, [[1,1], [1]]))
   end
 
-  defp do_generate(1, _acc), do: [[1]]
-
   defp do_generate(2, acc), do: acc
 
   defp do_generate(num, [head | _] = acc) do
@@ -1580,4 +1578,40 @@ defmodule PT do
 end
 
 PT.generate(5)
+```
+
+## 303. Range Sum Query - Immutable
+
+```elixir
+defmodule RSQI do
+  use Agent
+  
+  def init_(nums) do
+    prefix_values = 
+      (0..length(nums) - 1) 
+      |> Enum.reduce([0], fn i, acc ->
+        [Enum.at(nums, i) + List.first(acc) | acc]
+      end) 
+      |> Enum.reverse()
+      |> List.delete_at(0)
+      
+    Agent.start_link(fn -> prefix_values end, name: __MODULE__)
+  end
+
+  def sum_range(0, right) do
+    list = Agent.get(__MODULE__, & &1)
+    Enum.at(list, right)
+  end
+  
+  def sum_range(left, right) do
+    list = Agent.get(__MODULE__, & &1)
+    Enum.at(list, right) - Enum.at(list, left - 1)
+  end
+end
+
+RSQI.init_([-2, 0, 3, -5, 2, -1])
+RSQI.sum_range(0, 2)
+
+RSQI.init_([-1])
+RSQI.sum_range(0, 2)
 ```
