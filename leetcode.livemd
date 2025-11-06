@@ -1643,3 +1643,29 @@ defmodule MLL do
   defp do_middle_node(slow, _), do: slow
 end
 ```
+
+## 234. Palindrome Linked List
+
+```elixir
+defmodule PLL do
+  def is_palindrome(head) do
+    reverse(head, nil) == head
+  end
+
+  defp reverse(nil, acc), do: acc
+  
+  defp reverse(list_node, acc) do
+    reverse(list_node.next, Map.put(list_node, :next, acc))
+  end
+end
+
+head = %{
+  val: 1,
+  next: %{
+    val: 2,
+    next: %{val: 2, next: %{val: 1, next: nil}}
+  }
+}
+
+PLL.is_palindrome(head)
+```
