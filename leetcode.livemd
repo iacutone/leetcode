@@ -1627,3 +1627,19 @@ end)
 
 # [0,1,1,2,1,2]
 ```
+
+## 876. Middle of the Linked List
+
+```elixir
+defmodule MLL do
+  def middle_node(head) do
+    do_middle_node(head, head)
+  end
+
+  defp do_middle_node(slow, %ListNode{next: %ListNode{}} = fast) do
+    do_middle_node(slow.next, fast.next.next)
+  end
+
+  defp do_middle_node(slow, _), do: slow
+end
+```
