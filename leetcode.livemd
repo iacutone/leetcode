@@ -1615,3 +1615,15 @@ RSQI.sum_range(0, 2)
 RSQI.init_([-1])
 RSQI.sum_range(0, 2)
 ```
+
+## 338. Counting Bits
+
+```elixir
+0..5
+|> Enum.reduce([], fn i, acc ->
+  [i |> Integer.digits(2) |> Enum.sum() | acc]
+end)
+|> Enum.reverse()
+
+# [0,1,1,2,1,2]
+```
