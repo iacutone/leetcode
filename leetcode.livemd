@@ -1669,3 +1669,49 @@ head = %{
 
 PLL.is_palindrome(head)
 ```
+
+## 203. Remove Linked List
+
+```elixir
+defmodule RLL do
+  def remove_elements(head, val) do
+    do_remove_elements(head, val, nil)
+  end
+
+  defp do_remove_elements(nil, _val, acc), do: reverse(acc, nil)
+  
+  defp do_remove_elements(head, val, acc) do
+    if head.val == val do
+      do_remove_elements(head.next, val, acc)
+    else
+      do_remove_elements(head.next, val, Map.put(head, :next, acc))
+    end
+  end
+
+  defp reverse(nil, acc), do: acc
+  
+  defp reverse(head, acc) do
+    reverse(head.next, Map.put(head, :next, acc))
+  end
+end
+
+head = %{
+  val: 1,
+  next: %{
+    val: 2,
+    next: %{
+      val: 6,
+      next: %{
+        val: 3,
+        next: %{
+          val: 4,
+          next: %{val: 5, next: %{val: 6, next: nil}}
+        }
+      }
+    }
+  }
+}
+
+RLL.remove_elements(head, 6)
+# [1,2,3,4,5]
+```
