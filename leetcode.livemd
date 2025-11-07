@@ -1715,3 +1715,29 @@ head = %{
 RLL.remove_elements(head, 6)
 # [1,2,3,4,5]
 ```
+
+## 744. Find Smallest Letter Greater than Target
+
+```elixir
+defmodule FSLGT do
+  def next_greatest_letter(letters, target) do
+    Enum.reduce_while(letters, target, fn letter, _acc ->
+      if letter > target do
+        {:halt, letter}
+      else
+        {:cont, List.first(letters)}
+      end
+    end) 
+  end
+end
+
+letters = ["c", "f", "j"]
+FSLGT.next_greatest_letter(letters, "a")
+# "c"
+letters = ["c", "f", "j"]
+FSLGT.next_greatest_letter(letters, "c")
+# "f"
+# letters = ["x", "x", "y", "y"]
+# FSLGT.next_greatest_letter(letters, "z")
+# "x"
+```
