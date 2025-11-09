@@ -1741,3 +1741,41 @@ FSLGT.next_greatest_letter(letters, "c")
 # FSLGT.next_greatest_letter(letters, "z")
 # "x"
 ```
+
+## 637. Average Levels in a Binary Tree
+
+```elixir
+defmodule ALBT do
+  def average_of_levels(root) do
+    bfs([root], [])
+  end
+  
+  defp bfs([], averages), do: Enum.reverse(averages)
+  
+  defp bfs(level, averages) do
+    level_average = Enum.reduce(level, 0, fn node, acc -> acc + node.val end) / length(level)
+    
+    next_level =
+      Enum.flat_map(level, fn node ->
+        Enum.reject([node.left, node.right], fn node ->
+          is_nil(node)
+        end)
+      end)
+    
+    bfs(next_level, [level_average | averages])
+  end
+end
+
+root = %{
+  val: 3,
+  left: %{val: 9, left: nil, right: nil},
+  right: %{
+    val: 20,
+    left: %{val: 15, left: nil, right: nil},
+    right: %{val: 7, left: nil, right: nil}
+  }
+}
+
+ALBT.average_of_levels(root)
+# [3.00000, 14.50000, 11.00000]
+```
