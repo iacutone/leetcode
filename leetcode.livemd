@@ -1840,3 +1840,34 @@ root = %{
 MDBT.min_depth(root)
 # 5
 ```
+
+## 100. Same Tree
+
+```elixir
+defmodule ST do
+  def is_same_tree(nil, nil), do: true
+
+  def is_same_tree(%{}, nil), do: false
+
+  def is_same_tree(nil, %{}), do: false
+  
+  def is_same_tree(p, q) do
+    p.val == q.val and is_same_tree(p.left, q.left) and is_same_tree(p.right, q.right)
+  end
+end
+
+p = %{
+  val: 1,
+  left: %{val: 2, left: nil, right: nil},
+  right: %{val: 3, left: nil, right: nil}
+}
+
+q = %{
+  val: 1,
+  left: %{val: 2, left: nil, right: nil},
+  right: %{val: 3, left: nil, right: nil}
+}
+
+ST.is_same_tree(p, q)
+# true
+```
