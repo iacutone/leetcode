@@ -1308,12 +1308,8 @@ end
 ### 104. Maximum Depth of a Binary Tree
 
 ```elixir
-defmodule TreeNode do
-  defstruct val: 0, left: nil, right: nil
-end
-
-defmodule MD do
-  def max_depth(nil): do, 0
+defmodule MDBT1 do
+  def max_depth(nil), do: 0
   def max_depth(root) do
     1 + max(max_depth(root.left), max_depth(root.right))
   end
@@ -1869,5 +1865,54 @@ q = %{
 }
 
 ST.is_same_tree(p, q)
+# true
+```
+
+## 112. Path Sum
+
+```elixir
+defmodule PS do
+  def has_path_sum(nil, _target_sum), do: false
+  
+  def has_path_sum(root, target_sum) do
+    dfs(root, target_sum, 0)
+  end
+  
+  defp dfs(nil, _target_sum, _acc), do: false
+  
+  defp dfs(node, target_sum, acc) do
+    current_sum = acc + node.val
+    
+    if node.left == nil and node.right == nil do
+      current_sum == target_sum
+    else
+      dfs(node.left, target_sum, current_sum) or dfs(node.right, target_sum, current_sum)
+    end
+  end
+end
+
+root = %{
+  val: 5,
+  left: %{
+    val: 4,
+    left: %{
+      val: 11,
+      left: %{val: 7, left: nil, right: nil},
+      right: %{val: 2, left: nil, right: nil}
+    },
+    right: nil
+  },
+  right: %{
+    val: 8,
+    left: %{val: 13, left: nil, right: nil},
+    right: %{
+      val: 4,
+      left: nil,
+      right: %{val: 1, left: nil, right: nil}
+    }
+  }
+}
+
+PS.has_path_sum(root, 22)
 # true
 ```
