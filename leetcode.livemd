@@ -1916,3 +1916,54 @@ root = %{
 PS.has_path_sum(root, 22)
 # true
 ```
+
+## 617. Merge Two Binary Trees
+
+```elixir
+defmodule MTBT do
+  def merge_trees(root1, root2) do
+    dfs(root1, root2)
+  end
+
+  defp dfs(nil, nil), do: nil
+  
+  defp dfs(nil, root2), do: root2
+
+  defp dfs(root1, nil), do: root1
+
+  defp dfs(root1, root2) do
+    %{
+      left: dfs(root1.left, root2.left), 
+      right: dfs(root1.right, root2.right), 
+      val: root1.val + root2.val
+    }
+  end
+end
+
+root1 = %{
+  val: 1,
+  left: %{
+    val: 3,
+    left: %{val: 5, left: nil, right: nil},
+    right: nil
+  },
+  right: %{val: 2, left: nil, right: nil}
+}
+
+root2 = %{
+  val: 2,
+  left: %{
+    val: 1,
+    left: nil,
+    right: %{val: 4, left: nil, right: nil}
+  },
+  right: %{
+    val: 3,
+    left: nil,
+    right: %{val: 7, left: nil, right: nil}
+  }
+}
+
+MTBT.merge_trees(root1, root2)
+# [3,4,5,5,4,null,7]
+```
