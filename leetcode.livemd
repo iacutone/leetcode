@@ -1967,3 +1967,50 @@ root2 = %{
 MTBT.merge_trees(root1, root2)
 # [3,4,5,5,4,null,7]
 ```
+
+## 572. Subtree of Another Tree
+
+```elixir
+defmodule SAT do
+  def is_subtree(nil, nil), do: true
+
+  def is_subtree(nil, %{}), do: false
+
+  def is_subtree(root, sub_root) do
+    if same_tree?(root, sub_root) do
+      true
+    else
+      is_subtree(root.left, sub_root) or is_subtree(root.right, sub_root)
+    end
+  end
+
+  defp same_tree?(nil, nil), do: true
+
+  defp same_tree?(%{}, nil), do: false
+
+  defp same_tree?(nil, %{}), do: false
+  
+  defp same_tree?(p, q) do
+    p.val == q.val and same_tree?(p.left, q.left) and same_tree?(p.right, q.right)
+  end
+end
+
+root = %{
+  val: 3,
+  left: %{
+    val: 4,
+    left: %{val: 1, left: nil, right: nil},
+    right: %{val: 2, left: nil, right: nil}
+  },
+  right: %{val: 5, left: nil, right: nil}
+}
+
+sub_root = %{
+  val: 4,
+  left: %{val: 1, left: nil, right: nil},
+  right: %{val: 2, left: nil, right: nil}
+}
+
+
+SAT.is_subtree(root, sub_root)
+```
