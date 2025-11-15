@@ -2023,3 +2023,41 @@ nums = [-4, -1, 0, 3, 10]
 nums |> Enum.map(fn n -> n * n end) |> Enum.sort()
 # [0,1,9,16,100]
 ```
+
+## 844. Backspace String Comparison
+
+```elixir
+defmodule BSC do
+  def backspace_compare(s, t) do
+    do_backspace(s) == do_backspace(t)
+  end
+
+  defp do_backspace(string) do
+    string
+    |> String.graphemes()
+    |> Enum.reduce([], fn 
+      "#", [_ | tail] -> tail
+      "#", [] -> []
+      c, acc -> [c | acc]
+    end)
+  end
+end
+
+# s = "ab#c"
+# t = "ad#c"
+# true
+
+# s = "ab#c"
+# t = "ad#c"
+# true
+
+# s = "ab##"
+# t = "c#d#"
+# true
+
+s = "xywrrmp"
+t = "xywrrmu#p"
+# true
+
+BSC.backspace_compare(s, t)
+```
