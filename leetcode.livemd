@@ -2014,3 +2014,12 @@ sub_root = %{
 
 SAT.is_subtree(root, sub_root)
 ```
+
+## 977. Squares of a Sorted Array
+
+```elixir
+nums = [-4, -1, 0, 3, 10]
+
+nums |> Enum.map(fn n -> n * n end) |> Enum.sort()
+# [0,1,9,16,100]
+```
