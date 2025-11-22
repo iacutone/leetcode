@@ -2086,3 +2086,26 @@ else
   Enum.chunk_every(original, n)
 end
 ```
+
+## 392. Is Subsequence
+
+```elixir
+s = "abc"
+t = "ahbgdc"
+# true
+
+s = "axc"
+t = "ahbgdc"
+# false
+
+t
+|> String.graphemes()
+|> Enum.reduce_while(String.graphemes(s), fn
+  _, [] -> {:halt, []}
+  <<c>>, [<<c>> | tail] -> {:cont, tail}
+  _, acc -> {:cont, acc}
+end)
+|> then(fn result ->
+  result == []
+end)
+```
