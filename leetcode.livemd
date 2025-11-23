@@ -864,47 +864,6 @@ defmodule BFS do
 end
 ```
 
-```elixir
-defmodule DFS do
-  @doc """
-  Performs a Depth-First Search on a graph, starting from a given node.
-  Returns a list of nodes in the order they were visited.
-  """
-  def traverse(graph, start_node) do
-    # The stack will be a list of nodes to visit.
-    # The visited set will be a MapSet to ensure O(1) lookups.
-    stack = [start_node]
-    visited = MapSet.new([start_node])
-    do_traverse(graph, stack, visited, [])
-  end
-
-  defp do_traverse(_graph, [], _visited, result), do: Enum.reverse(result)
-
-  defp do_traverse(graph, [current_node | rest_of_stack], visited, result) do
-    # Add the current node to the result list
-    result = [current_node | result]
-
-    # Get the neighbors of the current node
-    neighbors = Map.get(graph, current_node, [])
-
-    # Filter out neighbors that have already been visited
-    new_neighbors = neighbors
-    |> Enum.filter(fn neighbor -> not MapSet.member?(visited, neighbor) end)
-
-    # Push new neighbors onto the stack (prepending to the list)
-    new_stack = new_neighbors ++ rest_of_stack
-
-    # Add new neighbors to the visited set
-    new_visited = Enum.reduce(new_neighbors, visited, fn neighbor, acc ->
-      MapSet.put(acc, neighbor)
-    end)
-
-    # Recurse with the updated stack, visited set, and result
-    do_traverse(graph, new_stack, new_visited, result)
-  end
-end
-```
-
 ### 70. Climbing Stairs
 
 You are climbing a staircase. It takes n steps to reach the top.
@@ -2108,4 +2067,43 @@ end)
 |> then(fn result ->
   result == []
 end)
+```
+
+## 257. Binary Tree Paths
+
+```elixir
+defmodule BTP do
+  def binary_tree_paths(root) do
+    dfs(root, [])
+  end
+
+  defp dfs(%{left: nil, right: nil, val: val}, acc) do
+    path = Enum.reverse([val | acc]) |> Enum.join("->")
+    [path]
+  end 
+
+  defp dfs(%{left: nil, right: right, val: val}, acc) do
+    dfs(right, [val | acc])
+  end
+
+  defp dfs(%{left: left, right: nil, val: val}, acc) do
+    dfs(left, [val | acc])
+  end
+
+  defp dfs(%{left: left, right: right, val: val}, acc) do
+    dfs(left, [val | acc]) ++ dfs(right, [val | acc])
+  end
+end
+
+root = %{
+  val: 1,
+  left: %{
+    val: 2,
+    left: nil,
+    right: %{val: 5, left: nil, right: nil}
+  },
+  right: %{val: 3, left: nil, right: nil}
+}
+
+BTP.binary_tree_paths(root)
 ```
