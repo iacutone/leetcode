@@ -2107,3 +2107,23 @@ root = %{
 
 BTP.binary_tree_paths(root)
 ```
+
+## 643. Maximum Average Subarray 1
+
+```elixir
+nums = [1, 12, -5, -6, 50, 3] 
+k = 4
+# 12.75000
+
+initial_sum = Enum.take(nums, k) |> Enum.sum()
+    
+nums
+|> Enum.drop(k)
+|> Enum.zip(nums)
+|> Enum.reduce({initial_sum, initial_sum}, fn {add, remove}, {current_sum, max_sum} ->
+  new_sum = current_sum + add - remove
+  {new_sum, max(new_sum, max_sum)}
+end)
+|> elem(1)
+|> Kernel./(k)
+```
