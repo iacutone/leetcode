@@ -2127,3 +2127,16 @@ end)
 |> elem(1)
 |> Kernel./(k)
 ```
+
+## 287. Find the Duplicate Number
+
+```elixir
+nums = [1,3,4,2,2]
+# 2
+
+nums 
+|> Enum.frequencies() 
+|> Enum.sort_by(fn {_k, v} -> v end, :desc) 
+|> List.first() 
+|> elem(0)
+```
