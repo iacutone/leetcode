@@ -2140,3 +2140,18 @@ nums
 |> List.first() 
 |> elem(0)
 ```
+
+## 442. Find all Duplicates in an Array
+
+```elixir
+nums = [4,3,2,7,8,2,3,1]
+# [2,3]
+
+nums
+|> Enum.frequencies()
+|> Enum.filter(fn {_k, v} -> v == 2 end)
+|> Enum.reduce([], fn {k, _v}, acc ->
+  [k | acc]
+end)
+|> Enum.reverse()
+```
