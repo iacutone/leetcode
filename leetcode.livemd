@@ -2219,14 +2219,14 @@ SM.spiral_order(matrix)
 ```elixir
 defmodule CSAPI do
   def calculate_score(instructions, values) do
-    calculate_score_helper(instructions, values, 0, 0, MapSet.new())
+    do_calculate_score(instructions, values, 0, 0, MapSet.new())
   end
   
-  defp calculate_score_helper(instructions, _values, i, score, _visited) when i < 0 or i >= length(instructions) do
+  defp do_calculate_score(instructions, _values, i, score, _visited) when i < 0 or i >= length(instructions) do
     score
   end
   
-  defp calculate_score_helper(instructions, values, i, score, visited) do
+  defp do_calculate_score(instructions, values, i, score, visited) do
     if MapSet.member?(visited, i) do
       score
     else
@@ -2235,11 +2235,11 @@ defmodule CSAPI do
       case Enum.at(instructions, i) do
         "add" ->
           new_score = score + Enum.at(values, i)
-          calculate_score_helper(instructions, values, i + 1, new_score, visited)
+          do_calculate_score(instructions, values, i + 1, new_score, visited)
         
         "jump" ->
           new_i = i + Enum.at(values, i)
-          calculate_score_helper(instructions, values, new_i, score, visited)
+          do_calculate_score(instructions, values, new_i, score, visited)
       end
     end
   end
@@ -2250,4 +2250,33 @@ values = [2,1,3,1,-2,-3]
 
 CSAPI.calculate_score(instructions, values)
 # 1
+```
+
+## 56. Merge Intervals
+
+```elixir
+defmodule MI do
+  def merge(intervals) do
+    intervals
+    |> Enum.sort_by(fn [start, _end] -> start end)
+    |> do_merge([])
+    |> Enum.reverse()
+  end
+
+  defp do_merge([], acc), do: acc
+
+  defp do_merge([[head_one,  head_two] | tail], 
+                [[acc_one, acc_two] | acc_tail]) when head_one <= acc_two do
+    merged_el = [acc_one, max(head_two, acc_two)]
+    do_merge(tail, [merged_el | acc_tail])
+  end
+
+  defp do_merge([head | tail], acc) do
+    do_merge(tail, [head | acc])
+  end
+end
+
+intervals = [[1,3],[2,6],[8,10],[15,18]]
+MI.merge(intervals)
+# [[1,6],[8,10],[15,18]]
 ```
