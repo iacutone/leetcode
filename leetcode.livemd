@@ -355,6 +355,23 @@ Enum.reduce_while(0..(length(nums) - 1), %{}, fn i, acc ->
 end)
 ```
 
+```python
+def twoSum(nums, target):
+    prevMap = {}  # val: index
+    
+    for i, n in enumerate(nums):
+        diff = target - n
+        if diff in prevMap:
+            return [prevMap[diff], i]
+        prevMap[n] = i
+
+nums = [2, 7, 11, 15]
+target = 9
+
+twoSum(nums, target)
+# [0, 1]
+```
+
 ### 283. Move Zeroes
 
 Given an integer array nums, move all 0's to the end of it while maintaining the relative order of the non-zero elements.
