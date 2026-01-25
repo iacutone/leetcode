@@ -66,6 +66,21 @@ end
 length([1, 2, 3, 1]) != [1, 2, 3, 1] |> Enum.uniq() |> length()
 ```
 
+```python
+def containsDuplicate(nums):
+    hashset = set()
+
+    for n in nums:
+      if n in hashset:
+        return True
+        
+      hashset.add(n)
+    return False
+
+nums = [1,2,3,1]
+containsDuplicate(nums)
+```
+
 ### 268. Missing Number
 
 Given an array nums containing n distinct numbers in the range [0, n], return the only number in the range that is missing from the array.
