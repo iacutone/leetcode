@@ -1567,15 +1567,18 @@ nums
 |> Enum.frequencies()
 |> Enum.min_by(fn {_k, v} -> v end)
 |> then(fn {k, _v} -> k end)
+
+Enum.reduce(nums, 0, fn n, acc -> Bitwise.bxor(n, acc) end)
 ```
 
 ```python
 def singleNumber(nums):
-  print(nums)
-  return nums
+  res = 0
+  for n in nums:
+    res = n ^ res
+  return res
 
-nums = [2,2,1]
-
+nums = [4,1,2,1,2]
 singleNumber(nums)
 ```
 
