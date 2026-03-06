@@ -1677,6 +1677,16 @@ defmodule MLL do
 end
 ```
 
+```python
+def middleNode(head):
+  slow, fast = head, head
+  while fast and fast.next:
+    slow = slow.next
+    fast = fast.next.next
+    
+  return slow
+```
+
 ## 234. Palindrome Linked List
 
 ```elixir
